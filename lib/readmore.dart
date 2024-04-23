@@ -17,37 +17,37 @@ class Annotation {
 
   final RegExp regExp;
   final TextSpan Function({required String text, TextStyle? textStyle})
-      spanBuilder;
+  spanBuilder;
 }
 
 class ReadMoreText extends StatefulWidget {
   const ReadMoreText(
-    this.data, {
-    super.key,
-    this.isCollapsed,
-    this.preDataText,
-    this.postDataText,
-    this.preDataTextStyle,
-    this.postDataTextStyle,
-    this.trimExpandedText = 'show less',
-    this.trimCollapsedText = 'read more',
-    this.colorClickableText,
-    this.trimLength = 240,
-    this.trimLines = 2,
-    this.trimMode = TrimMode.Length,
-    this.style,
-    this.textAlign,
-    this.textDirection,
-    this.locale,
-    this.textScaler,
-    this.semanticsLabel,
-    this.moreStyle,
-    this.lessStyle,
-    this.delimiter = '$_kEllipsis ',
-    this.delimiterStyle,
-    this.annotations,
-    this.isExpandable = true,
-  });
+      this.data, {
+        super.key,
+        this.isCollapsed,
+        this.preDataText,
+        this.postDataText,
+        this.preDataTextStyle,
+        this.postDataTextStyle,
+        this.trimExpandedText = 'show less',
+        this.trimCollapsedText = 'read more',
+        this.colorClickableText,
+        this.trimLength = 240,
+        this.trimLines = 2,
+        this.trimMode = TrimMode.Length,
+        this.style,
+        this.textAlign,
+        this.textDirection,
+        this.locale,
+        this.textScaler,
+        this.semanticsLabel,
+        this.moreStyle,
+        this.lessStyle,
+        this.delimiter = '$_kEllipsis ',
+        this.delimiterStyle,
+        this.annotations,
+        this.isExpandable = true,
+      });
 
   final ValueNotifier<bool>? isCollapsed;
 
@@ -133,8 +133,8 @@ class ReadMoreTextState extends State<ReadMoreText> {
       annotations
           .map(
             (a) =>
-                '(${a.regExp.pattern.replaceAll(_nonCapturingGroupPattern, '(?:')})',
-          )
+        '(${a.regExp.pattern.replaceAll(_nonCapturingGroupPattern, '(?:')})',
+      )
           .join('|'),
     );
   }
@@ -205,8 +205,8 @@ class ReadMoreTextState extends State<ReadMoreText> {
     final delimiter = TextSpan(
       text: isCollapsed
           ? widget.trimCollapsedText.isNotEmpty
-              ? widget.delimiter
-              : ''
+          ? widget.delimiter
+          : ''
           : '',
       style: defaultDelimiterStyle,
       recognizer: _recognizer,
@@ -252,7 +252,7 @@ class ReadMoreTextState extends State<ReadMoreText> {
 
         // Layout and measure link
         final textPainter = TextPainter(
-          text: link,
+          text: TextSpan(),
           textAlign: textAlign,
           textDirection: textDirection,
           textScaler: textScaler,
@@ -302,10 +302,10 @@ class ReadMoreTextState extends State<ReadMoreText> {
             if (widget.trimLength < widget.data.length) {
               final effectiveAnnotatedText = isCollapsed
                   ? _trimTextSpan(
-                      textSpan: annotatedText,
-                      spanStartIndex: 0,
-                      endIndex: widget.trimLength,
-                    ).textSpan
+                textSpan: annotatedText,
+                spanStartIndex: 0,
+                endIndex: widget.trimLength,
+              ).textSpan
                   : annotatedText;
 
               textSpan = TextSpan(
@@ -320,10 +320,10 @@ class ReadMoreTextState extends State<ReadMoreText> {
             if (textPainter.didExceedMaxLines) {
               final effectiveAnnotatedText = isCollapsed
                   ? _trimTextSpan(
-                      textSpan: annotatedText,
-                      spanStartIndex: 0,
-                      endIndex: endIndex,
-                    ).textSpan
+                textSpan: annotatedText,
+                spanStartIndex: 0,
+                endIndex: endIndex,
+              ).textSpan
                   : annotatedText;
 
               textSpan = TextSpan(
@@ -332,7 +332,7 @@ class ReadMoreTextState extends State<ReadMoreText> {
                   effectiveAnnotatedText,
                   if (linkLongerThanLine) const TextSpan(text: _kLineSeparator),
                   delimiter,
-                  link,
+                  //link,
                 ],
               );
             } else {
@@ -341,12 +341,57 @@ class ReadMoreTextState extends State<ReadMoreText> {
             break;
         }
 
-        return Text.rich(
+        return (textPainter.didExceedMaxLines)
+            ? AnimatedSize(
+          duration: Duration(milliseconds: 200),
+          child: Text.rich(
+            TextSpan(
+              children: [
+                if (preTextSpan != null) preTextSpan,
+                textSpan,
+                (textPainter.didExceedMaxLines)
+                    ? WidgetSpan(
+                    child: Container(
+                      alignment: Alignment.centerRight,
+                      //color: Colors.red,
+                      child: RichText(
+                        textAlign: TextAlign.right,
+                        text: TextSpan(children: [
+                          //WidgetSpan(child: Container(alignment: Alignment.center, color: Colors.red, child: Text('\n${isCollapsed ? widget.trimCollapsedText : widget.trimExpandedText}'),)),
+                          link,
+                          if (postTextSpan != null) postTextSpan,
+                        ]),),))
+                    : (postTextSpan != null)
+                    ? postTextSpan
+                    : TextSpan(),
+              ],
+            ),
+            textAlign: textAlign,
+            textDirection: textDirection,
+            softWrap: true,
+            overflow: TextOverflow.clip,
+            textScaler: textScaler,
+          ),
+        ): Text.rich(
           TextSpan(
             children: [
               if (preTextSpan != null) preTextSpan,
               textSpan,
-              if (postTextSpan != null) postTextSpan,
+              (textPainter.didExceedMaxLines)
+                  ? WidgetSpan(
+                  child: Container(
+                    alignment: Alignment.centerRight,
+                    //color: Colors.red,
+                    child: RichText(
+                      textAlign: TextAlign.right,
+                      text: TextSpan(children: [
+                        //WidgetSpan(child: Container(alignment: Alignment.center, color: Colors.red, child: Text('\n${isCollapsed ? widget.trimCollapsedText : widget.trimExpandedText}'),)),
+                        link,
+                        if (postTextSpan != null) postTextSpan,
+                      ]),),))
+                  : (postTextSpan != null)
+                  ? postTextSpan
+                  : TextSpan(),
             ],
           ),
           textAlign: textAlign,
@@ -480,17 +525,17 @@ class ReadMoreTextState extends State<ReadMoreText> {
 
     final resultTextSpan = didTrim
         ? TextSpan(
-            text: textSpan.text,
-            children: newChildren, // update children
-            style: textSpan.style,
-            recognizer: textSpan.recognizer,
-            mouseCursor: textSpan.mouseCursor,
-            onEnter: textSpan.onEnter,
-            onExit: textSpan.onExit,
-            semanticsLabel: textSpan.semanticsLabel,
-            locale: textSpan.locale,
-            spellOut: textSpan.spellOut,
-          )
+      text: textSpan.text,
+      children: newChildren, // update children
+      style: textSpan.style,
+      recognizer: textSpan.recognizer,
+      mouseCursor: textSpan.mouseCursor,
+      onEnter: textSpan.onEnter,
+      onExit: textSpan.onExit,
+      semanticsLabel: textSpan.semanticsLabel,
+      locale: textSpan.locale,
+      spellOut: textSpan.spellOut,
+    )
         : textSpan;
 
     return _TextSpanTrimResult(
