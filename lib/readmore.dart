@@ -47,6 +47,8 @@ class ReadMoreText extends StatefulWidget {
         this.delimiterStyle,
         this.annotations,
         this.isExpandable = true,
+        required this.onCollapse,
+        required this.onExpand,
       });
 
   final ValueNotifier<bool>? isCollapsed;
@@ -97,6 +99,8 @@ class ReadMoreText extends StatefulWidget {
   final TextScaler? textScaler;
   final String? semanticsLabel;
   final TextStyle? delimiterStyle;
+  final Function() onCollapse;
+  final Function() onExpand;
 
   @override
   ReadMoreTextState createState() => ReadMoreTextState();
@@ -106,7 +110,7 @@ const String _kEllipsis = '\u2026';
 
 const String _kLineSeparator = '\u2028';
 
-class ReadMoreTextState extends State<ReadMoreText> {
+class ReadMoreTextState extends State<ReadMoreText> with AutomaticKeepAliveClientMixin{
   static final _nonCapturingGroupPattern = RegExp(r'\((?!\?:)');
 
   final TapGestureRecognizer _recognizer = TapGestureRecognizer();
@@ -117,7 +121,14 @@ class ReadMoreTextState extends State<ReadMoreText> {
 
   void _onTap() {
     if (widget.isExpandable) {
+
+      _effectiveIsCollapsed.value? widget.onExpand(): widget.onCollapse();
+
       _effectiveIsCollapsed.value = !_effectiveIsCollapsed.value;
+      /*if(_effectiveIsCollapsed.value){
+        widget.onCollapse();
+      }*/
+      //_effectiveIsCollapsed.value? widget.onCollapse(): widget.onExpand();
     }
   }
 
@@ -344,6 +355,7 @@ class ReadMoreTextState extends State<ReadMoreText> {
         return (textPainter.didExceedMaxLines)
             ? AnimatedSize(
           duration: Duration(milliseconds: 200),
+          alignment: Alignment.topCenter,
           child: Text.rich(
             TextSpan(
               children: [
@@ -557,6 +569,11 @@ class ReadMoreTextState extends State<ReadMoreText> {
 
     return children.every(_isTextSpan);
   }
+
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }
 
 @immutable
